@@ -1,0 +1,64 @@
+---
+title: "Reporte de actividades semanales"
+subtitle: "Equipo de transferencias a PRONABI"
+execute: 
+  echo: false
+  warning: false
+format:
+  docx:
+    reference-doc: reference.docx
+---
+
+```{r}
+library(tidyverse)
+library(appsheet)
+library(flextable)
+
+tbl_individual <- function(.data) {
+	.data |> 
+		flextable() |> 
+		theme_box() |> 
+		merge_v(j = 1) |> 
+		set_table_properties(layout = "autofit")
+}
+```
+
+```{r}
+documents <-
+	appsheet(
+		tableName = "documents",
+		Properties = ash_properties(Selector = 'Filter("documents", [last_modification] > (NOW() - 7))')
+	) |>
+	filter(encargado != "") |>
+	mutate(last_modification = mdy_hms(last_modification))
+
+users <- appsheet("users") |> 
+	select(encargado = `Row ID`, name, last_name)
+
+vehiculos <- appsheet("vehicles")
+```
+
+# Documentos subidos al sistema informático de transferencias
+
+```{r}
+documents |> 
+	left_join(users) |> 
+	mutate(Encargado = paste(name, last_name)) |> 
+	mutate(Fecha = format(last_modification, "%d/%m/%Y")) |> 
+	select(Encargado, `Descripción` = description, Fecha, `Tipo de documento` = document_type) |>
+	arrange(Encargado) |> 
+	tbl_individual()
+```
+
+# Vehiculos según estado de cierre
+
+Si tiene acta de cierre: Cerrado.
+Si tiene acta de devolución, remate, adjudicación, etc: Listo para cierre
+Si tiene algún otro documento: En proceso
+Si no tiene ningún documento: Pendiente
+
+```{r}
+# vehiculos
+```
+
+
