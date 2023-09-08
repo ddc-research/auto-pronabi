@@ -7,6 +7,8 @@ execute:
 format:
   docx:
     reference-doc: reference.docx
+    number-sections: true
+    
 ---
 
 ```{r}
@@ -19,17 +21,23 @@ tbl_individual <- function(.data) {
 		flextable() |> 
 		theme_box() |> 
 		merge_v(j = 1) |> 
-		set_table_properties(layout = "autofit")
+		set_table_properties(layout = "autofit") |> 
+		fontsize(size = 9) |> 
+		font(fontname = "Arial")
 }
+
+min_date <- now("America/Lima") - days(7)
 ```
 
+# Producción semanal
+
+Este reporte muestra el avance en la producción en las transferencias de vehículos a PRONABI desde el `r format(min_date, "%d/%m/%Y")` al `r format(today(), "%d/%m/%Y")`.
+
 ```{r}
-documents <-
+documentos <-
 	appsheet(
 		tableName = "documents",
-		Properties = ash_properties(Selector = 'Filter("documents", [last_modification] > (NOW() - 7))')
 	) |>
-	filter(encargado != "") |>
 	mutate(last_modification = mdy_hms(last_modification))
 
 users <- appsheet("users") |> 
@@ -38,10 +46,11 @@ users <- appsheet("users") |>
 vehiculos <- appsheet("vehicles")
 ```
 
-# Documentos subidos al sistema informático de transferencias
+## Documentos subidos al sistema informático de transferencias
 
 ```{r}
-documents |> 
+documentos |> 
+	filter(encargado != "", last_modification > min_date) |>
 	left_join(users) |> 
 	mutate(Encargado = paste(name, last_name)) |> 
 	mutate(Fecha = format(last_modification, "%d/%m/%Y")) |> 
@@ -50,7 +59,9 @@ documents |>
 	tbl_individual()
 ```
 
-# Vehiculos según estado de cierre
+# Producción acumulada
+
+## Vehiculos según estado de cierre
 
 Si tiene acta de cierre: Cerrado.
 Si tiene acta de devolución, remate, adjudicación, etc: Listo para cierre
@@ -58,7 +69,50 @@ Si tiene algún otro documento: En proceso
 Si no tiene ningún documento: Pendiente
 
 ```{r}
-# vehiculos
+tipo_de_documentos <- documentos |> 
+	select(id_documento = `Row ID`, tipo_de_documento = document_type)
+
+estado_vehiculos <- vehiculos |> 
+	select(id_vehiculo = `Row ID`, id_documento = `Related documents`) |> 
+	separate_longer_delim(cols = id_documento, delim = ",") |> 
+	mutate(id_documento = str_squish(id_documento)) |> 
+	left_join(tipo_de_documentos) |> 
+	summarise(
+		.by = id_vehiculo,
+		estado = case_when(
+			any(tipo_de_documento == "Acta de cierre en DGCO") ~ "Cerrado",
+			any(tipo_de_documento %in% c("Acta de devolución")) ~ "Pendiente de cierre",
+			any(tipo_de_documento == "Otros") ~ "En proceso",
+			.default = "Pendiente de inicio"
+		)
+	)
+```
+
+
+```{r}
+#| fig-width: 7
+#| fig-height: 4
+estado_vehiculos |> 
+	mutate(estado = factor(estado, levels = c("Pendiente de inicio", "En proceso", "Pendiente de cierre", "Cerrado"))) |> 
+	count(estado, .drop = FALSE) |> 
+	mutate(
+		porcentaje = (n/sum(n)*100) |> round(2),
+		label = glue::glue(" {n} ({porcentaje}%) ")
+	) |> 
+	ggplot(aes(x = n, y = estado)) +
+	geom_col(fill = "#CCCCCC", color = "#383838") +
+	geom_text(aes(label = label), hjust = "inward", fontface = "bold") +
+	theme(
+		panel.background = element_rect(fill = "#f0f0e0"),
+		axis.text = element_text(face = "bold"),
+		axis.title = element_text(size = 12),
+		axis.title.x = element_text(margin = margin(t = 20)),
+		axis.title.y = element_text(margin = margin(r = 20))
+	) +
+	labs(
+		x = "N° de vehiculos",
+		y = "Estado de atención"
+	)
 ```
 
 
