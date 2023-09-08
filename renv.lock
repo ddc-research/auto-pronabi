@@ -211,6 +211,39 @@
       ],
       "Hash": "9fe98599ca456d6552421db0d6772d8f"
     },
+    "blastula": {
+      "Package": "blastula",
+      "Version": "0.3.3",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "RemoteType": "standard",
+      "RemotePkgRef": "blastula",
+      "RemoteRef": "blastula",
+      "RemoteRepos": "https://cran.rstudio.com",
+      "RemotePkgPlatform": "i386+x86_64-w64-mingw32",
+      "RemoteSha": "0.3.3",
+      "Requirements": [
+        "R",
+        "base64enc",
+        "commonmark",
+        "curl",
+        "digest",
+        "dplyr",
+        "fs",
+        "getPass",
+        "here",
+        "htmltools",
+        "httr",
+        "jsonlite",
+        "magrittr",
+        "mime",
+        "rlang",
+        "rmarkdown",
+        "stringr",
+        "uuid"
+      ],
+      "Hash": "3d27d96349f9e8bcbd259a5766c2c221"
+    },
     "blob": {
       "Package": "blob",
       "Version": "1.2.4",
@@ -897,6 +930,24 @@
       ],
       "Hash": "15e9634c0fcd294799e9b2e929ed1b86"
     },
+    "getPass": {
+      "Package": "getPass",
+      "Version": "0.2-2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "RemoteType": "standard",
+      "RemotePkgRef": "getPass",
+      "RemoteRef": "getPass",
+      "RemoteRepos": "https://cran.rstudio.com",
+      "RemotePkgPlatform": "x86_64-w64-mingw32",
+      "RemoteSha": "0.2-2",
+      "Requirements": [
+        "R",
+        "rstudioapi",
+        "utils"
+      ],
+      "Hash": "07a91f99e56951818ab911366db77700"
+    },
     "gfonts": {
       "Package": "gfonts",
       "Version": "0.2.0",
@@ -1080,6 +1131,22 @@
         "vctrs"
       ],
       "Hash": "9b302fe352f9cfc5dcf0a4139af3a565"
+    },
+    "here": {
+      "Package": "here",
+      "Version": "1.0.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "RemoteType": "standard",
+      "RemotePkgRef": "here",
+      "RemoteRef": "here",
+      "RemoteRepos": "https://cran.rstudio.com",
+      "RemotePkgPlatform": "i386+x86_64-w64-mingw32",
+      "RemoteSha": "1.0.1",
+      "Requirements": [
+        "rprojroot"
+      ],
+      "Hash": "24b224366f9c2e7534d2344d10d59211"
     },
     "highr": {
       "Package": "highr",
@@ -1558,6 +1625,24 @@
       ],
       "Hash": "273a6bb4a9844c296a459d2176673270"
     },
+    "packrat": {
+      "Package": "packrat",
+      "Version": "0.9.2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "RemoteType": "standard",
+      "RemotePkgRef": "packrat",
+      "RemoteRef": "packrat",
+      "RemoteRepos": "https://cran.rstudio.com",
+      "RemotePkgPlatform": "i386+x86_64-w64-mingw32",
+      "RemoteSha": "0.9.2",
+      "Requirements": [
+        "R",
+        "tools",
+        "utils"
+      ],
+      "Hash": "55ddd2d4a1959535f18393478b0c14a6"
+    },
     "pillar": {
       "Package": "pillar",
       "Version": "1.9.0",
@@ -1707,6 +1792,29 @@
         "vctrs"
       ],
       "Hash": "1cba04a4e9414bdefc9dcaa99649a8dc"
+    },
+    "quarto": {
+      "Package": "quarto",
+      "Version": "1.2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "RemoteType": "standard",
+      "RemotePkgRef": "quarto",
+      "RemoteRef": "quarto",
+      "RemoteRepos": "https://cran.rstudio.com",
+      "RemotePkgPlatform": "i386+x86_64-w64-mingw32",
+      "RemoteSha": "1.2",
+      "Requirements": [
+        "jsonlite",
+        "later",
+        "processx",
+        "rmarkdown",
+        "rsconnect",
+        "rstudioapi",
+        "utils",
+        "yaml"
+      ],
+      "Hash": "298a252816cabed120391c955aced484"
     },
     "ragg": {
       "Package": "ragg",
@@ -1910,6 +2018,50 @@
         "yaml"
       ],
       "Hash": "3854c37590717c08c32ec8542a2e0a35"
+    },
+    "rprojroot": {
+      "Package": "rprojroot",
+      "Version": "2.0.3",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "RemoteType": "standard",
+      "RemotePkgRef": "rprojroot",
+      "RemoteRef": "rprojroot",
+      "RemoteRepos": "https://cran.rstudio.com",
+      "RemotePkgPlatform": "i386+x86_64-w64-mingw32",
+      "RemoteSha": "2.0.3",
+      "Requirements": [
+        "R"
+      ],
+      "Hash": "1de7ab598047a87bba48434ba35d497d"
+    },
+    "rsconnect": {
+      "Package": "rsconnect",
+      "Version": "1.1.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "RemoteType": "standard",
+      "RemotePkgRef": "rsconnect",
+      "RemoteRef": "rsconnect",
+      "RemoteRepos": "https://cran.rstudio.com",
+      "RemotePkgPlatform": "i386+x86_64-w64-mingw32",
+      "RemoteSha": "1.1.0",
+      "Requirements": [
+        "R",
+        "cli",
+        "curl",
+        "digest",
+        "jsonlite",
+        "lifecycle",
+        "openssl",
+        "packrat",
+        "renv",
+        "rlang",
+        "rstudioapi",
+        "tools",
+        "yaml"
+      ],
+      "Hash": "ec53d658cf0abbd7cd7ce2d6b9d70337"
     },
     "rstudioapi": {
       "Package": "rstudioapi",
