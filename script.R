@@ -21,6 +21,9 @@ close(creds_file)
 # Sending email ----
 cli::cli_alert_info("Sending email")
 
+formatted_time <- lubridate::now(tzone = "America/Lima") |> 
+	format("%A %d de %B del %Y a las %H:%M (hora de Lima).")
+
 email <- compose_email(
 	body = md(glue::glue(
 		"# Reporte semanal - Transferencias a PRONABI
@@ -35,7 +38,7 @@ email <- compose_email(
 		Este reporte se genera automáticamente, no es necesario responder.
 		"
 	)),
-	footer = md(glue::glue("Enviado el {add_readable_time()}."))
+	footer = md(glue::glue("Enviado el {formatted_time}."))
 ) |> 
 	add_attachment(file = output_file)
 
