@@ -33,9 +33,9 @@ jobs:
       - uses: quarto-dev/quarto-actions/setup@v2
       
       - name: Set up Renv
-          uses: r-lib/actions/setup-renv@v2
-          env: 
-            RENV_CONFIG_REPOS_OVERRIDE: ${{ env.RSPM }}
+        uses: r-lib/actions/setup-renv@v2
+        env: 
+          RENV_CONFIG_REPOS_OVERRIDE: ${{ env.RSPM }}
       
       - name: Set locale
         run: |
