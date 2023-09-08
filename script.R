@@ -1,8 +1,9 @@
 library(quarto)
 library(blastula)
 
-fecha <- lubridate::today("America/Lima")
-output_file = glue::glue("pronabi-semanal-{fecha}.docx")
+fecha_fin <- lubridate::today("America/Lima")
+fecha_inicio <- fecha_fin - lubridate::days(7)
+output_file = glue::glue("pronabi-semanal-{fecha_fin}.docx")
 
 # Rendering report ---
 cli::cli_alert_info("Rendering report")
@@ -21,22 +22,53 @@ close(creds_file)
 cli::cli_alert_info("Sending email")
 
 email <- compose_email(
-	body = md("Test email"),
+	body = md(glue::glue(
+		"# Reporte semanal de transferencias
+		
+		Se ha generado un reporte de producción del equipo de transferencias a 
+		PRONABI de la Dirección de Control de Drogas y Cultivos Ilegales. 
+		Descargue los archivos adjuntos para ver el contenido.
+		
+		- **Fecha de inicio:** {format(fecha_inicio, \"%A %d de %B del %Y\")}
+		- **Fecha de fin:** {format(fecha_fin, \"%A %d de %B del %Y\")}
+		
+		Este reporte se genera automáticamente, no es necesario responder.
+		"
+	)),
 	footer = md(glue::glue("Enviado el {add_readable_time()}."))
-)
+) |> 
+	add_attachment(file = output_file)
+
+# email
 
 # Sending email by SMTP using a credentials file
-email |>
-	add_attachment(file = output_file) |>
-	smtp_send(
-		from = Sys.getenv("GMAIL_USER_FROM"),
-		to = Sys.getenv("GMAIL_USER_TO"),
-		subject = "Testing the `smtp_send()` function 2",
-		credentials = creds_file("email_creds")
-	)
 
-# Cleaning ----
-cli::cli_alert_info("Cleaning")
+send_email <- function() {
+	email |>
+		smtp_send(
+			from = Sys.getenv("GMAIL_USER_FROM"),
+			to = Sys.getenv("GMAIL_USER_TO") |> stringr::str_split_1(pattern = ", "),
+			subject = "Reporte semanal - Transferencias a PRONABI",
+			credentials = creds_file("email_creds")
+		)
+}
 
-file.remove("email_creds")
-file.remove(output_file)
+clean_up <- function() {
+	cli::cli_alert_info("Cleaning")
+	
+	file.remove("email_creds")
+	file.remove(output_file)
+}
+
+tryCatch(
+	{
+		send_email()
+		cli::cli_alert_success("Email sent")
+		clean_up()
+	}, 
+	error = function(e) {
+		clean_up()
+		cli::cli_abort("{e}")
+	}
+)
+
