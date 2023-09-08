@@ -8,7 +8,6 @@ format:
   docx:
     reference-doc: reference.docx
     number-sections: true
-    
 ---
 
 ```{r}
