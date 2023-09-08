@@ -23,7 +23,7 @@ cli::cli_alert_info("Sending email")
 
 email <- compose_email(
 	body = md(glue::glue(
-		"# Reporte semanal de transferencias
+		"# Reporte semanal - Transferencias a PRONABI
 		
 		Se ha generado un reporte de producción del equipo de transferencias a 
 		PRONABI de la Dirección de Control de Drogas y Cultivos Ilegales. 
@@ -46,7 +46,7 @@ email <- compose_email(
 send_email <- function() {
 	email |>
 		smtp_send(
-			from = Sys.getenv("GMAIL_USER_FROM"),
+			from = Sys.getenv("GMAIL_USER_FROM") |> setNames(Sys.getenv("GMAIL_USER_NAME")),
 			to = Sys.getenv("GMAIL_USER_TO") |> stringr::str_split_1(pattern = ", "),
 			subject = "Reporte semanal - Transferencias a PRONABI",
 			credentials = creds_file("email_creds")
