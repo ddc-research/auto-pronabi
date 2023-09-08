@@ -12,6 +12,7 @@ jobs:
       BLASTULA_EMAIL_CREDS: ${{ secrets.BLASTULA_EMAIL_CREDS }}
       GMAIL_USER_FROM: ${{ secrets.GMAIL_USER_FROM }}
       GMAIL_USER_TO: ${{ secrets.GMAIL_USER_TO }}
+      LANG: "es_PE.UTF-8"
     steps:
       - uses: actions/checkout@v3
       - uses: r-lib/actions/setup-pandoc@v2
@@ -20,5 +21,9 @@ jobs:
           use-public-rspm: true
       - uses: quarto-dev/quarto-actions/setup@v2
       - uses: r-lib/actions/setup-renv@v2
+      - name: Set locale
+        run: |
+          sudo locale-gen es_PE.UTF-8
+          sudo update-locale LANG=es_PE.UTF-8
       - run: |
           Rscript script.R
