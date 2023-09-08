@@ -1,4 +1,6 @@
-on: workflow_dispatch
+on: 
+  schedule:
+    - cron: "0 17 * * THU"
 
 name: Generar y enviar reporte
 
