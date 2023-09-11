@@ -1,4 +1,20 @@
-# Reporte automático de producción - Equipo PRONABI
+# Automatic Production Report - PRONABI Team (English)
+
+This repository contains the necessary code to generate automated production reports for the PRONABI Transfers team at the Directorate of Drug Control and Illegal Crops.
+
+These reports are generated using [Quarto](https://quarto.org/). Once generated, they are sent by email to specific recipients using the R package `{blastula}`(https://github.com/rstudio/blastula). This workflow has been automated to run every Thursday at noon using [Github Actions](https://github.com/features/actions).
+
+To ensure secure operation, the following environmental variables have been implemented:
+
+- `APPSHEET_APP_ID`: ID of a Google Appsheet application. Used to fetch data in `report.qmd`.
+- `APPSHEET_APP_ACCESS_KEY`: Access key for a Google Appsheet application. Used to fetch data in `report.qmd`.
+- `GMAIL_USER_FROM`: Email address of the user sending the email.
+- `GMAIL_USER_NAME`: User's name sending the email. Although implemented, it seems to have no effect.
+- `GMAIL_USER_TO`: Email addresses of users who will receive the email. It can be a single email or multiple emails separated by a comma and a space (`, `). If there are multiple recipients, they must be specified within a single text variable (example: `"email1@example.com, email2@example.com, email3@example.com"`)
+- `BLASTULA_EMAIL_CREDS`: Text generated when using `blastula::create_smtp_creds_file()`. Typically, using this function generates a text file in the working directory. The content of that file has been taken for security. Now, the same file is manually created by reading it from this environmental variable within `script.R`.
+
+
+# Reporte automático de producción - Equipo PRONABI (Español)
 
 Este repositorio contiene el código necesario para producir reportes automatizados de la producción del equipo de Transferencias a PRONABI en la Dirección de Control de Drogas y Cultivos Ilegales.
 
