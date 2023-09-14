@@ -34,9 +34,7 @@ Este reporte muestra el avance en la producción en las transferencias de vehíc
 
 ```{r}
 documentos <-
-	appsheet(
-		tableName = "documents",
-	) |>
+	appsheet("documents") |>
 	mutate(last_modification = mdy_hms(last_modification))
 
 users <- appsheet("users") |> 
@@ -54,7 +52,17 @@ documentos |>
 	mutate(Encargado = paste(name, last_name)) |> 
 	mutate(Fecha = format(last_modification, "%d/%m/%Y")) |> 
 	select(Encargado, `Descripción` = description, Fecha, `Tipo de documento` = document_type) |>
-	arrange(Encargado) |> 
+	mutate(
+		Descripción = `Descripción` |> 
+			str_squish() |> 
+			str_remove("\\.$")
+	) |> 
+	count(across(.cols = everything()), name = "recuento") |> 
+	mutate(
+		Descripción = glue::glue("{Descripción} ({recuento} vehículo{if_else(recuento > 1, 's', '')}).") 
+	) |> 
+	select(-recuento) |> 
+	arrange(Encargado, Fecha) |> 
 	tbl_individual()
 ```
 
@@ -71,6 +79,16 @@ Si no tiene ningún documento: Pendiente
 tipo_de_documentos <- documentos |> 
 	select(id_documento = `Row ID`, tipo_de_documento = document_type)
 
+casos_pendientes_cierre <- c("Acta de devolución", 
+							 "Acta de transferencia", 
+							 "Acta de remate",
+							 "Acta de subasta")
+
+casos_en_proceso <- c("Otros", 
+					  "Informe técnico vehicular",
+					  "Acta de incautación",
+					  "Documento de asignación")
+
 estado_vehiculos <- vehiculos |> 
 	select(id_vehiculo = `Row ID`, id_documento = `Related documents`) |> 
 	separate_longer_delim(cols = id_documento, delim = ",") |> 
@@ -80,8 +98,8 @@ estado_vehiculos <- vehiculos |>
 		.by = id_vehiculo,
 		estado = case_when(
 			any(tipo_de_documento == "Acta de cierre en DGCO") ~ "Cerrado",
-			any(tipo_de_documento %in% c("Acta de devolución")) ~ "Pendiente de cierre",
-			any(tipo_de_documento == "Otros") ~ "En proceso",
+			any(tipo_de_documento %in% casos_pendientes_cierre) ~ "Pendiente de cierre",
+			any(tipo_de_documento %in% casos_en_proceso) ~ "En proceso",
 			.default = "Pendiente de inicio"
 		)
 	)
