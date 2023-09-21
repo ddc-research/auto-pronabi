@@ -25,6 +25,11 @@ tbl_individual <- function(.data) {
 		font(fontname = "Arial")
 }
 
+find_csv <- function(x) {
+	list.files(path = "data", pattern = x, full.names = TRUE) |> 
+		read_csv2()
+}
+
 min_date <- now("America/Lima") - days(7)
 ```
 
@@ -33,15 +38,24 @@ min_date <- now("America/Lima") - days(7)
 Este reporte muestra el avance en la producción en las transferencias de vehículos a PRONABI desde el `r format(min_date, "%d/%m/%Y")` al `r format(today(), "%d/%m/%Y")`.
 
 ```{r}
-documentos <-
-	appsheet("documents") |>
+# documentos <- appsheet("documents")
+documentos <- find_csv("documentos")
+
+# users <- appsheet("users")
+users <- find_csv("usuarios")
+
+# vehiculos <- appsheet("vehicles")
+vehiculos <- find_csv("vehiculos")
+```
+
+```{r}
+documentos <- documentos |> 
 	mutate(last_modification = mdy_hms(last_modification))
 
-users <- appsheet("users") |> 
+users <- users |> 
 	select(encargado = `Row ID`, name, last_name)
-
-vehiculos <- appsheet("vehicles")
 ```
+
 
 ## Documentos subidos al sistema informático de transferencias
 
@@ -70,10 +84,10 @@ documentos |>
 
 ## Vehiculos según estado de cierre
 
-Si tiene acta de cierre: Cerrado.
-Si tiene acta de devolución, remate, adjudicación, etc: Listo para cierre
-Si tiene algún otro documento: En proceso
-Si no tiene ningún documento: Pendiente
+- Si tiene acta de cierre: Cerrado.
+- Si tiene acta de devolución, remate, adjudicación, etc: Pendiente de cierre
+- Si tiene algún otro documento: En proceso
+- Si no tiene ningún documento: Pendiente
 
 ```{r}
 tipo_de_documentos <- documentos |> 
@@ -128,7 +142,8 @@ estado_vehiculos |>
 	) +
 	labs(
 		x = "N° de vehiculos",
-		y = "Estado de atención"
+		y = "Estado de atención",
+		caption = glue::glue("Total de vehículos: {nrow(vehiculos)}")
 	)
 ```
 
