@@ -28,7 +28,7 @@ tbl_individual <- function(.data) {
 min_date <- now("America/Lima") - days(7)
 ```
 
-# Producción semanal
+# Producción semanal 
 
 Este reporte muestra el avance en la producción en las transferencias de vehículos a PRONABI desde el `r format(min_date, "%d/%m/%Y")` al `r format(today(), "%d/%m/%Y")`.
 
@@ -41,9 +41,14 @@ users <- appsheet("users") |>
 	select(encargado = `Row ID`, name, last_name)
 
 vehiculos <- appsheet("vehicles")
+
+inmuebles <- appsheet("properties")
+
+inmuebles_docs <- appsheet("properties_documents") |> 
+	mutate(last_modification = mdy_hms(last_modification))
 ```
 
-## Documentos subidos al sistema informático de transferencias
+## Documentos subidos al SISETRA - Vehículos
 
 ```{r}
 documentos |> 
@@ -65,6 +70,30 @@ documentos |>
 	arrange(Encargado, Fecha) |> 
 	tbl_individual()
 ```
+
+## Documentos subidos al SISETRA - Inmuebles
+
+```{r}
+inmuebles_docs |> 
+	filter(last_modification > min_date) |> 
+	left_join(users, by = join_by(assignee == encargado)) |> 
+	mutate(Encargado = paste(name, last_name)) |> 
+	mutate(Fecha = format(last_modification, "%d/%m/%Y")) |> 
+	select(Encargado, `Descripción` = description, Fecha, `Tipo de documento` = document_type) |>
+	mutate(
+		Descripción = `Descripción` |> 
+			str_squish() |> 
+			str_remove("\\.$")
+	) |> 
+	count(across(.cols = everything()), name = "recuento") |> 
+	mutate(
+		Descripción = glue::glue("{Descripción} ({recuento} vehículo{if_else(recuento > 1, 's', '')}).") 
+	) |> 
+	select(-recuento) |> 
+	arrange(Encargado, Fecha) |> 
+	tbl_individual()
+```
+
 
 # Producción acumulada
 
@@ -132,4 +161,60 @@ estado_vehiculos |>
 	)
 ```
 
+## Inmuebles según estado de cierre
+
+Si tiene acta de cierre: Cerrado.
+Si tiene acta de transferencia: Transferido
+Si tiene solicitud de transferencia a PRONABI: Por transferir
+Si tiene informe de situación física legal: Con saneamiento físico legal
+Si tiene plano: Con ubicación física
+Si no tiene ningún documento: Pendiente
+
+```{r}
+estado_inmuebles <- inmuebles |> 
+	select(id_inmueble = `Row ID`, id_documento = `Related properties_documents`) |> 
+	separate_longer_delim(cols = id_documento, delim = ",") |> 
+	mutate(id_documento = str_squish(id_documento)) |> 
+	left_join(inmuebles_docs, by = join_by(id_documento == `Row ID`)) |> 
+	summarise(
+		.by = id_inmueble,
+		estado = case_when(
+			any(document_type == "Acta de cierre en DGCO") ~ "Cerrado",
+			any(document_type == "Acta de transferencia") ~ "Transferido",
+			any(document_type == "Solicitud de transferencia a PRONABI") ~ "Por transferir",
+			any(document_type == "Informe de situación física legal") ~ "Con saneamiento físico legal",
+			any(document_type == "Plano") ~ "Con ubicación física",
+			.default = "Pendiente de inicio"
+		)
+	)
+```
+
+
+```{r}
+estado_inmuebles |> 
+	mutate(
+		estado = estado |> 
+			factor(levels = c("Pendiente de inicio", "Con ubicación física", "Con saneamiento físico legal",
+							  "Por transferir", "Transferido", "Cerrado"))
+	) |> 
+	count(estado, .drop = FALSE) |> 
+	mutate(
+		porcentaje = (n/sum(n)*100) |> round(2),
+		label = glue::glue(" {n} ({porcentaje}%) ")
+	) |> 
+	ggplot(aes(x = n, y = estado)) +
+	geom_col(fill = "#CCCCCC", color = "#383838") +
+	geom_text(aes(label = label), hjust = "inward", fontface = "bold") +
+	theme(
+		panel.background = element_rect(fill = "#f0f0e0"),
+		axis.text = element_text(face = "bold"),
+		axis.title = element_text(size = 12),
+		axis.title.x = element_text(margin = margin(t = 20)),
+		axis.title.y = element_text(margin = margin(r = 20))
+	) +
+	labs(
+		x = "N° de inmuebles",
+		y = "Estado de atención"
+	)
+```
 

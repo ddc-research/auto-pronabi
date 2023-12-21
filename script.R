@@ -26,7 +26,7 @@ formatted_time <- lubridate::now(tzone = "America/Lima") |>
 
 email <- compose_email(
 	body = md(glue::glue(
-		"# Reporte semanal - Transferencias a PRONABI
+		"# SISETRA - Reporte semanal
 		
 		Se ha generado un reporte de producción del equipo de transferencias a 
 		PRONABI de la Dirección de Control de Drogas y Cultivos Ilegales. 
